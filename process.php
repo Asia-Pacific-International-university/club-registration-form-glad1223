@@ -1,3 +1,7 @@
+<?php
+// Start the session to maintain registration data across requests
+session_start();
+?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -12,12 +16,16 @@
     <main class="card p-5 shadow-lg rounded-3 text-center" style="max-width: 500px; width: 100%;">
         <?php
         // Club Registration Form Processing
-        // TODO: Add your PHP processing code here starting in Step 3
-
+        
         // Initialize variables for validation
         $errors = [];
         $name = $email = $club = "";
         $is_valid = true;
+
+        // Initialize the registrations array in the session if it doesn't exist
+        if (!isset($_SESSION['registrations'])) {
+            $_SESSION['registrations'] = [];
+        }
 
         // Check if the request method is POST
         if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -27,7 +35,7 @@
                 $is_valid = false;
                 $errors[] = "Name is a required field.";
             } else {
-                // Sanitize name input
+                // Sanitize and trim name input
                 $name = htmlspecialchars(trim($_POST['name']));
             }
 
@@ -36,7 +44,7 @@
                 $is_valid = false;
                 $errors[] = "Email is a required field.";
             } else {
-                // Sanitize email input
+                // Sanitize and trim email input
                 $email = htmlspecialchars(trim($_POST['email']));
                 // Validate email format using filter_var()
                 if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -54,8 +62,17 @@
                 $club = htmlspecialchars(trim($_POST['club']));
             }
 
-            // If all fields are valid, display the success message
+            // If all fields are valid, display the success message and store the data
             if ($is_valid) {
+                // Create an associative array for the new registration
+                $new_registration = [
+                    'name' => $name,
+                    'email' => $email,
+                    'club' => $club
+                ];
+                // Push the new registration to the session array
+                $_SESSION['registrations'][] = $new_registration;
+
                 // Display a confirmation message to the user
                 echo "<h1 class='h3 fw-bold text-dark mb-4'>Registration Successful!</h1>";
                 echo "<p class='lead text-secondary mb-4'>Thank you for registering. Here is your information:</p>";
@@ -80,7 +97,27 @@
             echo "<h1 class='h3 fw-bold text-danger mb-4'>Invalid Request</h1>";
             echo "<p class='text-secondary'>This page should be accessed via a form submission.</p>";
         }
+        ?>
 
+        <hr class="my-4">
+
+        <h2 class="h4 fw-bold text-dark mb-3">All Registered Students</h2>
+        <?php if (!empty($_SESSION['registrations'])): ?>
+            <ul class="list-group list-group-flush text-start">
+                <?php foreach ($_SESSION['registrations'] as $index => $registration): ?>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="mb-1 fw-bold"><?= htmlspecialchars($registration['name']) ?></p>
+                            <small class="text-muted"><?= htmlspecialchars($registration['email']) ?></small>
+                        </div>
+                        <span class="badge bg-primary rounded-pill"><?= htmlspecialchars($registration['club']) ?></span>
+                    </li>
+                <?php endforeach; ?>
+            </ul>
+        <?php else: ?>
+            <p class="text-muted">No students have registered yet.</p>
+        <?php endif; ?>
+        <?php
         /* 
         Step 3 Requirements:
         - Process form data using $_POST
