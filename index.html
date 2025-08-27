@@ -24,7 +24,7 @@
              - Club selection (select dropdown with at least 3 options)
              - Submit button
         -->
-             <form method="POST" action="process.php">
+             <form method="post" action="process.php" >
                 <label for="name">Name:</label>
                 <input type="text" id="name" name="name" required><br><br>
 
@@ -34,12 +34,13 @@
                 <label for="club">Select Club:</label>
                 <select id="club" name="club" required>
                     <option value="">--Please choose an option--</option>
-                    <option value="science">Science Club</option>
-                    <option value="art">Computer Club</option>
-                    <option value="sports">Sports Club</option>
+                    <option value="science">Programming Club</option>
+                    <option value="art">Art Club</option>
+                    <option value="sports">Music Club</option>
+                    <option value="science">Drama Club</option>
                 </select><br><br>
 
-                <input type="submit" value="Register">
+                <input type="submit" name="submit" value="Register">
     </main>
 
     <footer>
