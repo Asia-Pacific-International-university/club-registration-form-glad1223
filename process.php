@@ -14,23 +14,48 @@
         // Club Registration Form Processing
         // TODO: Add your PHP processing code here starting in Step 3
 
-        /* 
-        Step 3 Requirements:
-        - Process form data using $_POST
-        - Display submitted information back to user
-        - Handle name, email, and club fields
-        */
+        // Initialize variables for validation
+        $errors = [];
+        $name = $email = $club = "";
+        $is_valid = true;
+
         // Check if the request method is POST
         if ($_SERVER["REQUEST_METHOD"] == "POST") {
-            // Check if all required fields are set and not empty
-            if (isset($_POST['name']) && isset($_POST['email']) && isset($_POST['club']) &&
-                !empty($_POST['name']) && !empty($_POST['email']) && !empty($_POST['club'])) {
 
-                // Extract and sanitize the form data
+            // Validate Name field
+            if (empty($_POST['name'])) {
+                $is_valid = false;
+                $errors[] = "Name is a required field.";
+            } else {
+                // Sanitize name input
                 $name = htmlspecialchars(trim($_POST['name']));
-                $email = htmlspecialchars(trim($_POST['email']));
-                $club = htmlspecialchars(trim($_POST['club']));
+            }
 
+            // Validate Email field
+            if (empty($_POST['email'])) {
+                $is_valid = false;
+                $errors[] = "Email is a required field.";
+            } else {
+                // Sanitize email input
+                $email = htmlspecialchars(trim($_POST['email']));
+                // Validate email format using filter_var()
+                if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                    $is_valid = false;
+                    $errors[] = "The email address is not in a valid format.";
+                }
+            }
+            
+            // Validate Club field
+            if (empty($_POST['club'])) {
+                $is_valid = false;
+                $errors[] = "Please select a club.";
+            } else {
+                // Sanitize club input
+                $club = htmlspecialchars(trim($_POST['club']));
+            }
+
+            // If all fields are valid, display the success message
+            if ($is_valid) {
                 // Display a confirmation message to the user
                 echo "<h1 class='h3 fw-bold text-dark mb-4'>Registration Successful!</h1>";
                 echo "<p class='lead text-secondary mb-4'>Thank you for registering. Here is your information:</p>";
@@ -39,19 +64,29 @@
                 echo "<p class='text-muted'><span class='fw-semibold text-dark'>Email:</span> $email</p>";
                 echo "<p class='text-muted'><span class='fw-semibold text-dark'>Club:</span> $club</p>";
                 echo "</div>";
-
             } else {
-                // Display an error message if fields are missing
+                // Display error messages
                 echo "<h1 class='h3 fw-bold text-danger mb-4'>Error!</h1>";
-                echo "<p class='text-secondary'>One or more required fields were not filled out.</p>";
+                echo "<p class='text-secondary'>Please fix the following issues:</p>";
+                echo "<ul class='list-unstyled text-start text-danger'>";
+                foreach ($errors as $error) {
+                    echo "<li>&bull; $error</li>";
+                }
+                echo "</ul>";
             }
+
         } else {
             // Display a message if the form was not submitted via POST
             echo "<h1 class='h3 fw-bold text-danger mb-4'>Invalid Request</h1>";
             echo "<p class='text-secondary'>This page should be accessed via a form submission.</p>";
         }
 
-        /*
+        /* 
+        Step 3 Requirements:
+        - Process form data using $_POST
+        - Display submitted information back to user
+        - Handle name, email, and club fields
+       
           Step 4 Requirements:
         - Add validation for all fields
         - Check for empty fields
