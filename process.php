@@ -1,123 +1,166 @@
 <?php
 // Start the session to maintain registration data across requests
 session_start();
-?>
 
+// Define a constant for the file path to prevent typos
+define("REGISTRATIONS_FILE", "registrations.json");
+
+// Custom function to save data to a file
+function saveRegistrationToFile($registration) {
+    $registrations = getRegistrationsFromFile();
+    $registrations[] = $registration;
+    // Use JSON to easily store structured data in a text file
+    file_put_contents(REGISTRATIONS_FILE, json_encode($registrations, JSON_PRETTY_PRINT));
+}
+
+// Custom function to retrieve data from a file
+function getRegistrationsFromFile() {
+    if (file_exists(REGISTRATIONS_FILE)) {
+        $json_data = file_get_contents(REGISTRATIONS_FILE);
+        // Decode the JSON data and return as an array
+        return json_decode($json_data, true);
+    }
+    return []; // Return an empty array if the file doesn't exist
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registration Confirmation</title>
-    <!-- Use Bootstrap for styling -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" xintegrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="styles.css">
 </head>
-<body class="bg-light d-flex justify-content-center align-items-center min-vh-100 p-4">
-    <main class="card p-5 shadow-lg rounded-3 text-center" style="max-width: 500px; width: 100%;">
+<body>
+    <header>
+        <h1>Student Club Registration</h1>
+        <p>Your registration status and a list of all members.</p>
+    </header>
+
+    <main>
         <?php
-        // Club Registration Form Processing
-        
         // Initialize variables for validation
         $errors = [];
-        $name = $email = $club = "";
         $is_valid = true;
 
-        // Initialize the registrations array in the session if it doesn't exist
-        if (!isset($_SESSION['registrations'])) {
-            $_SESSION['registrations'] = [];
-        }
-
-        // Check if the request method is POST
+        // Handle form submission
         if ($_SERVER["REQUEST_METHOD"] == "POST") {
-
+            // Collect and validate all form data
+            $name = isset($_POST['name']) ? htmlspecialchars(trim($_POST['name'])) : '';
+            $email = isset($_POST['email']) ? htmlspecialchars(trim($_POST['email'])) : '';
+            $club = isset($_POST['club']) ? htmlspecialchars(trim($_POST['club'])) : '';
+            $membership = isset($_POST['membership']) ? htmlspecialchars($_POST['membership']) : 'standard';
+            $interests = isset($_POST['interests']) ? $_POST['interests'] : [];
+            $comments = isset($_POST['comments']) ? htmlspecialchars(trim($_POST['comments'])) : '';
+        
             // Validate Name field
-            if (empty($_POST['name'])) {
+            if (empty($name)) {
                 $is_valid = false;
                 $errors[] = "Name is a required field.";
-            } else {
-                // Sanitize and trim name input
-                $name = htmlspecialchars(trim($_POST['name']));
             }
-
+        
             // Validate Email field
-            if (empty($_POST['email'])) {
+            if (empty($email)) {
                 $is_valid = false;
                 $errors[] = "Email is a required field.";
-            } else {
-                // Sanitize and trim email input
-                $email = htmlspecialchars(trim($_POST['email']));
-                // Validate email format using filter_var()
-                if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                    $is_valid = false;
-                    $errors[] = "The email address is not in a valid format.";
-                }
+            } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $is_valid = false;
+                $errors[] = "The email address is not in a valid format.";
             }
             
             // Validate Club field
-            if (empty($_POST['club'])) {
+            if (empty($club)) {
                 $is_valid = false;
                 $errors[] = "Please select a club.";
-            } else {
-                // Sanitize club input
-                $club = htmlspecialchars(trim($_POST['club']));
             }
-
-            // If all fields are valid, display the success message and store the data
+        
+            // If validation passes, save the new registration
             if ($is_valid) {
-                // Create an associative array for the new registration
                 $new_registration = [
                     'name' => $name,
                     'email' => $email,
-                    'club' => $club
+                    'club' => $club,
+                    'membership' => $membership,
+                    'interests' => $interests,
+                    'comments' => $comments,
+                    'registration_date' => date('Y-m-d H:i:s')
                 ];
-                // Push the new registration to the session array
-                $_SESSION['registrations'][] = $new_registration;
-
-                // Display a confirmation message to the user
-                echo "<h1 class='h3 fw-bold text-dark mb-4'>Registration Successful!</h1>";
-                echo "<p class='lead text-secondary mb-4'>Thank you for registering. Here is your information:</p>";
-                echo "<div class='text-start space-y-2'>";
-                echo "<p class='text-muted'><span class='fw-semibold text-dark'>Name:</span> $name</p>";
-                echo "<p class='text-muted'><span class='fw-semibold text-dark'>Email:</span> $email</p>";
-                echo "<p class='text-muted'><span class='fw-semibold text-dark'>Club:</span> $club</p>";
-                echo "</div>";
+        
+                saveRegistrationToFile($new_registration);
+        
+                echo "<h2>Registration Successful!</h2>";
+                echo "<p>Thank you for registering. Here is your information:</p>";
+                echo "<ul>";
+                echo "<li><strong>Name:</strong> $name</li>";
+                echo "<li><strong>Email:</strong> $email</li>";
+                echo "<li><strong>Club:</strong> $club</li>";
+                echo "<li><strong>Membership:</strong> $membership</li>";
+                echo "<li><strong>Interests:</strong> " . implode(", ", $interests) . "</li>";
+                echo "<li><strong>Comments:</strong> $comments</li>";
+                echo "</ul>";
             } else {
-                // Display error messages
-                echo "<h1 class='h3 fw-bold text-danger mb-4'>Error!</h1>";
-                echo "<p class='text-secondary'>Please fix the following issues:</p>";
-                echo "<ul class='list-unstyled text-start text-danger'>";
+                // Display validation errors
+                echo "<h2>Error!</h2>";
+                echo "<p>Please fix the following issues:</p>";
+                echo "<ul>";
                 foreach ($errors as $error) {
                     echo "<li>&bull; $error</li>";
                 }
                 echo "</ul>";
             }
-
+        
         } else {
             // Display a message if the form was not submitted via POST
-            echo "<h1 class='h3 fw-bold text-danger mb-4'>Invalid Request</h1>";
-            echo "<p class='text-secondary'>This page should be accessed via a form submission.</p>";
+            echo "<h2>Invalid Request</h2>";
+            echo "<p>This page should be accessed via a form submission.</p>";
         }
         ?>
 
-        <hr class="my-4">
+        <hr>
 
-        <h2 class="h4 fw-bold text-dark mb-3">All Registered Students</h2>
-        <?php if (!empty($_SESSION['registrations'])): ?>
-            <ul class="list-group list-group-flush text-start">
-                <?php foreach ($_SESSION['registrations'] as $index => $registration): ?>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <div>
-                            <p class="mb-1 fw-bold"><?= htmlspecialchars($registration['name']) ?></p>
-                            <small class="text-muted"><?= htmlspecialchars($registration['email']) ?></small>
-                        </div>
-                        <span class="badge bg-primary rounded-pill"><?= htmlspecialchars($registration['club']) ?></span>
+        <h2>All Registered Students</h2>
+
+        <form method="get" action="process.php" class="search-form">
+            <input type="text" name="search" placeholder="Search by name or club..." value="<?= htmlspecialchars($_GET['search'] ?? '') ?>">
+            <button type="submit">Search</button>
+        </form>
+
+        <?php
+        $all_registrations = getRegistrationsFromFile();
+        if (isset($_GET['search']) && !empty(trim($_GET['search']))) {
+            $search_query = strtolower(trim($_GET['search']));
+            $filtered_registrations = array_filter($all_registrations, function($reg) use ($search_query) {
+                return str_contains(strtolower($reg['name']), $search_query) || str_contains(strtolower($reg['club']), $search_query);
+            });
+            $display_registrations = $filtered_registrations;
+        } else {
+            $display_registrations = $all_registrations;
+        }
+
+        if (!empty($display_registrations)): ?>
+            <ul class="registration-list">
+                <?php foreach ($display_registrations as $registration): ?>
+                    <li>
+                        <strong>Name:</strong> <?= htmlspecialchars($registration['name']) ?><br>
+                        <strong>Email:</strong> <?= htmlspecialchars($registration['email']) ?><br>
+                        <strong>Club:</strong> <?= htmlspecialchars($registration['club']) ?>
                     </li>
                 <?php endforeach; ?>
             </ul>
         <?php else: ?>
-            <p class="text-muted">No students have registered yet.</p>
+            <p>No students have registered yet or no results found.</p>
         <?php endif; ?>
-        <?php
+
+        <a href="index.html" class="button">Go Back</a>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Student Club Registration System</p>
+    </footer>
+</body>
+</html>
+
+<?php
         /* 
         Step 3 Requirements:
         - Process form data using $_POST
@@ -144,14 +187,3 @@ session_start();
         */
 
         ?>
-        <a href="index.html" class="btn btn-primary mt-4">
-            Go Back
-        </a>
-    </main>
-</body>
-</html>
-
-
-
-
-

@@ -24,23 +24,58 @@
              - Club selection (select dropdown with at least 3 options)
              - Submit button
         -->
-             <form method="post" action="process.php" >
+              <main>
+        <form method="post" action="process.php">
+            <div class="form-row">
                 <label for="name">Name:</label>
-                <input type="text" id="name" name="name" required><br><br>
+                <input type="text" id="name" name="name" required>
+            </div>
 
+            <div class="form-row">
                 <label for="email">Email:</label>
-                <input type="email" id="email" name="email" required><br><br>
-
+                <input type="email" id="email" name="email" required>
+            </div>
+            
+            <div class="form-row">
                 <label for="club">Select Club:</label>
                 <select id="club" name="club" required>
                     <option value="">--Please choose an option--</option>
-                    <option value="science">Programming Club</option>
+                    <option value="programming">Programming Club</option>
                     <option value="art">Art Club</option>
-                    <option value="sports">Music Club</option>
-                    <option value="science">Drama Club</option>
-                </select><br><br>
+                    <option value="music">Music Club</option>
+                    <option value="drama">Drama Club</option>
+                </select>
+            </div>
+            
+            <div class="form-row">
+                <label>Membership Type:</label>
+                <div class="input-group">
+                    <input type="radio" id="standard" name="membership" value="standard" checked>
+                    <label for="standard">Standard</label>
+                    <input type="radio" id="premium" name="membership" value="premium">
+                    <label for="premium">Premium</label>
+                </div>
+            </div>
 
-                <input type="submit" name="submit" value="Register">
+            <div class="form-row">
+                <label>Areas of Interest:</label>
+                <div class="input-group">
+                    <input type="checkbox" id="coding" name="interests[]" value="coding">
+                    <label for="coding">Coding</label>
+                    <input type="checkbox" id="design" name="interests[]" value="design">
+                    <label for="design">Design</label>
+                    <input type="checkbox" id="events" name="interests[]" value="events">
+                    <label for="events">Events</label>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <label for="comments">Why do you want to join?</label>
+                <textarea id="comments" name="comments" rows="4"></textarea>
+            </div>
+
+            <input type="submit" name="submit" value="Register">
+        </form>
     </main>
 
     <footer>

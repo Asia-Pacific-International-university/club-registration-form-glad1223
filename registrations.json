@@ -1,0 +1,26 @@
+[
+    {
+        "name": "Gladness",
+        "email": "j@gmail.com",
+        "club": "programming",
+        "membership": "premium",
+        "interests": [
+            "coding",
+            "events"
+        ],
+        "comments": "love",
+        "registration_date": "2025-08-28 19:12:15"
+    },
+    {
+        "name": "Gladness",
+        "email": "j@gmail.com",
+        "club": "programming",
+        "membership": "premium",
+        "interests": [
+            "coding",
+            "events"
+        ],
+        "comments": "love",
+        "registration_date": "2025-08-28 19:17:14"
+    }
+]

@@ -67,21 +67,38 @@ main {
  * Form Elements
  * ================== */
 form {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+    display: grid; /* Use grid for the main form container */
+    grid-template-columns: 1fr; /* Default to one column for mobile */
+    gap: 15px; /* Adds space between each row */
 }
+
+/* This is the key change to make the table-like layout on larger screens */
+@media (min-width: 500px) {
+    form {
+        grid-template-columns: 120px 1fr; /* Two columns: 120px for label, remaining for input */
+        gap: 15px 10px; /* Vertical and horizontal gap */
+    }
+
+    .form-row {
+        display: contents; /* This makes the children of .form-row participate in the main grid */
+    }
+
+    label {
+        text-align: right; /* Aligns all labels to the right */
+        padding-right: 10px;
+    }
+}
+
 
 label {
     font-weight: 600;
     color: #444;
-    margin-bottom: 5px;
-    display: block;
 }
 
 input[type="text"],
 input[type="email"],
-select {
+select,
+textarea {
     width: 100%;
     padding: 12px;
     border: 1px solid #ddd;
@@ -93,16 +110,29 @@ select {
 
 input[type="text"]:focus,
 input[type="email"]:focus,
-select:focus {
+select:focus,
+textarea:focus {
     border-color: #3f51b5;
     outline: none;
     box-shadow: 0 0 0 3px rgba(63, 81, 181, 0.2);
 }
 
-/* ==================
- * Submit Button
- * ================== */
+/* New CSS for the side-by-side radio and checkbox groups */
+.input-group {
+    display: flex;
+    flex-wrap: wrap; /* Allows items to wrap on smaller screens */
+    align-items: center; /* Vertically aligns items */
+    gap: 15px; /* Space between each radio/checkbox pair */
+}
+
+.input-group label {
+    font-weight: normal; /* Override the bold for these labels */
+    text-align: left; /* Aligns these labels to the left */
+}
+
+/* To ensure the submit button spans the full width of the form */
 input[type="submit"] {
+    grid-column: 1 / -1; /* This makes the button span all columns in the grid */
     background-color: #3f51b5;
     color: #ffffff;
     border: none;
@@ -136,4 +166,61 @@ input[type="submit"]:active {
     main {
         padding: 20px;
     }
+}
+
+/* Add to your existing styles.css file */
+
+/* Style the search form */
+.search-form {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.search-form input[type="text"] {
+    flex-grow: 1; /* Makes the input field take up available space */
+}
+
+.search-form button {
+    background-color: #3f51b5;
+    color: #ffffff;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* Style the list of registrations */
+.registration-list {
+    list-style-type: none; /* Removes the bullet points */
+    padding: 0;
+}
+
+.registration-list li {
+    background-color: #f9f9f9;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+/* Style the "Go Back" link as a button */
+.button {
+    display: inline-block;
+    background-color: #3f51b5;
+    color: #ffffff;
+    border: none;
+    padding: 14px 24px;
+    border-radius: 8px;
+    font-size: 1.1em;
+    font-weight: 600;
+    text-decoration: none; /* Removes underline from the link */
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    margin-top: 20px;
+}
+
+.button:hover {
+    background-color: #303f9f;
+    transform: translateY(-2px);
 }
